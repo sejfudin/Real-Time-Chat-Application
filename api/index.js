@@ -10,7 +10,6 @@ app.get('/chat', (req, res) => {
 });
 
 app.get('/chat/:id', (req, res) => {
-  console.log(req.params.id);
   const { id } = req.params;
   const singleChat = chats.find((c) => c._id === id);
   res.send(singleChat);
