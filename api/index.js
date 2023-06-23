@@ -1,21 +1,18 @@
 const express = require('express');
 const dotenv = require('dotenv');
-const chats = require('./dummy-data/data');
+const chats = require('./dummyData/data');
+const mongo = require('./config/mongo');
+const userRoutes = require('./routes/userRoutes');
 
 const app = express();
 dotenv.config();
 
-app.get('/chat', (req, res) => {
-  res.send(chats);
-});
+mongo();
 
-app.get('/chat/:id', (req, res) => {
-  const { id } = req.params;
-  const singleChat = chats.find((c) => c._id === id);
-  res.send(singleChat);
-});
+app.use(express.json());
+app.use('/user', userRoutes);
 
-const port = process.env.PORT || 5000;
+const port = process.env.PORT;
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
