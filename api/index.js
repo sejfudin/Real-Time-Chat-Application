@@ -4,6 +4,7 @@ const cors = require('cors');
 const chats = require('./dummyData/data');
 const mongo = require('./config/mongo');
 const userRoutes = require('./routes/userRoutes');
+const chatRoutes = require('./routes/chatRoutes');
 
 const app = express();
 dotenv.config();
@@ -13,6 +14,7 @@ app.use(cors());
 
 app.use(express.json());
 app.use('/user', userRoutes);
+app.use('/chat', chatRoutes);
 
 const port = process.env.PORT;
 
