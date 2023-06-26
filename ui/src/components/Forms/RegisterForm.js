@@ -20,9 +20,9 @@ const RegisterForm = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    registerUser(formData, navigate);
+    await registerUser(formData, navigate);
     // Handle form submission logic here
     console.log(formData);
   };
