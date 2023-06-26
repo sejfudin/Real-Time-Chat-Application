@@ -12,7 +12,7 @@ const accessChat = async (req, res) => {
   var isChat = await Chat.find({
     isGroupChat: false, //this is one to one chat
     $and: [
-      { users: { $elemMatch: { $eq: req.user._id } } },
+      { users: { $elemMatch: { $eq: req.user?._id } } },
       { users: { $elemMatch: { $eq: userId } } },
     ],
   })
@@ -30,21 +30,21 @@ const accessChat = async (req, res) => {
     var chatData = {
       chatName: 'sender',
       isGroupChat: false,
-      users: [req.user._id, userId],
+      users: [req.user?._id, userId],
     };
   }
   try {
     const createdChat = await Chat.create(chatData);
 
     //get chat from db and send it in response
-    const FullChat = await Chat.findOne({ _id: createdChat._id }).populate('users', '-password');
-    res.status(200).send(FullChat);
+    const fullChat = await Chat.findOne({ _id: createdChat._id }).populate('users', '-password');
+    res.status(200).send(fullChat);
   } catch (error) {}
 };
 
 const fetchChats = async (req, res) => {
   try {
-    Chat.find({ users: { $elemMatch: { $eq: req.user._id } } })
+    Chat.find({ users: { $elemMatch: { $eq: req.user?._id } } })
       .populate('users', '-password')
       .populate('groupAdmin', '-password')
       .populate('latestMessage')
@@ -106,4 +106,24 @@ const addToGroup = async (req, res) => {
   }
 };
 
-module.exports = { accessChat, fetchChats, createGroupChat, addToGroup };
+const removeFromGroup = async (req, res) => {
+  const { chatId, userId } = req.body;
+  const removed = await Chat.findByIdAndUpdate(
+    chatId,
+    {
+      $pull: { users: userId },
+    },
+    { new: true }
+  )
+    .populate('users', '-password')
+    .populate('groupAdmin', '-password');
+
+  if (!removed) {
+    res.status(404);
+    throw new Error('Chat Not Found');
+  } else {
+    res.json(removed);
+  }
+};
+
+module.exports = { accessChat, fetchChats, createGroupChat, addToGroup, removeFromGroup };
