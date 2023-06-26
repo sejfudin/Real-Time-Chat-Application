@@ -63,8 +63,16 @@ const fetchChats = async (req, res) => {
 };
 const createGroupChat = async (req, res) => {
   var users = JSON.parse(req.body.users);
+  const { name } = req.body;
+
+  const groupExists = await Chat.findOne({ chatName: name });
+  if (groupExists) {
+    res.status(400);
+    throw new Error('Group already exists');
+  }
+
   if (users.length < 2) {
-    return res.status(400).send('MOre than two users are required to form a group chat');
+    return res.status(400).send('More than two users are required to form a group chat');
   }
   users.push(req.user); //Add logged in user to users array
   try {
