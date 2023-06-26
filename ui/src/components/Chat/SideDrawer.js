@@ -16,9 +16,11 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { styled } from '@mui/system';
 import { useChatState } from '../../Context/ChatProvider';
-import ProfileModal from '../User/Profile/ProfileModal';
-import { createChat, searchUser } from '../../utils/helpers';
+import ProfileModal from '../Modals/ProfileModal';
+import { logout, searchUser } from '../../services/userService';
+import { createChat } from '../../services/chatService';
 import UserListItem from '../User/UserListItem';
+import { useNavigate } from 'react-router';
 
 const SideDrawerContainer = styled(Paper)`
   display: flex;
@@ -59,6 +61,7 @@ const SideDrawer = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [searchResult, setSearchResult] = useState();
+  const navigate = useNavigate();
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -66,11 +69,6 @@ const SideDrawer = () => {
 
   const handleMenuClose = () => {
     setAnchorEl(null);
-  };
-
-  const handleMenuItemClick = (menuItem) => {
-    console.log(`Clicked on ${menuItem}`);
-    handleMenuClose();
   };
 
   const handleOpenModal = () => {
@@ -107,6 +105,11 @@ const SideDrawer = () => {
     handleDrawerClose();
   };
 
+  const logoutUser = () => {
+    logout();
+    navigate('/');
+  };
+
   return (
     <>
       <SideDrawerContainer elevation={2}>
@@ -139,7 +142,7 @@ const SideDrawer = () => {
               horizontal: 'right',
             }}>
             <MenuItem onClick={handleOpenModal}>My Profile</MenuItem>
-            <MenuItem onClick={() => handleMenuItemClick('Settings')}>Logout</MenuItem>
+            <MenuItem onClick={logoutUser}>Logout</MenuItem>
           </Menu>
         </div>
       </SideDrawerContainer>

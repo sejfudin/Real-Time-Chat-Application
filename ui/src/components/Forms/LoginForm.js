@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { TextField, Button, Container } from '@mui/material';
-import { loginUser } from '../../utils/helpers';
+import { loginUser } from '../../services/userService';
 import { useNavigate } from 'react-router';
 
 const LoginForm = () => {

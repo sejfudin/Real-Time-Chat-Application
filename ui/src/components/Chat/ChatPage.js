@@ -1,12 +1,21 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Grid } from '@mui/material';
 import SideDrawer from './SideDrawer';
 import MyChats from './MyChats';
 import ChatBox from './ChatBox';
 import { useChatState } from '../../Context/ChatProvider';
+import { useNavigate } from 'react-router';
 
 const ChatPage = () => {
   const { user } = useChatState();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('userInfo'));
+    if (!user) {
+      navigate('/');
+    }
+  }, [navigate]);
 
   return (
     <Grid container spacing={2}>
