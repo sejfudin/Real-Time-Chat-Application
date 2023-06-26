@@ -64,6 +64,7 @@ const fetchChats = async (req, res) => {
 const createGroupChat = async (req, res) => {
   var users = JSON.parse(req.body.users);
   const { name } = req.body;
+  console.log(req.body);
 
   const groupExists = await Chat.findOne({ chatName: name });
   if (groupExists) {
@@ -80,7 +81,7 @@ const createGroupChat = async (req, res) => {
       chatName: req.body.name,
       users,
       isGroupChat: true,
-      groupAdmin: req.User,
+      groupAdmin: req.user,
     });
 
     const fullGroupChat = await Chat.findOne({ _id: groupChat._id })
@@ -93,8 +94,31 @@ const createGroupChat = async (req, res) => {
     throw new Error(error.message);
   }
 };
+const renameGroup = async (req, res) => {
+  const { chatId, chatName } = req.body;
+
+  const updatedChat = await Chat.findByIdAndUpdate(
+    chatId,
+    {
+      chatName: chatName,
+    },
+    {
+      new: true,
+    }
+  )
+    .populate('users', '-password')
+    .populate('groupAdmin', '-password');
+
+  if (!updatedChat) {
+    res.status(404);
+    throw new Error('Chat Not Found');
+  } else {
+    res.json(updatedChat);
+  }
+};
 
 const addToGroup = async (req, res) => {
+  console.log('okino');
   const { chatId, userId } = req.body;
   const added = await Chat.findByIdAndUpdate(
     chatId,
@@ -134,4 +158,11 @@ const removeFromGroup = async (req, res) => {
   }
 };
 
-module.exports = { accessChat, fetchChats, createGroupChat, addToGroup, removeFromGroup };
+module.exports = {
+  accessChat,
+  fetchChats,
+  createGroupChat,
+  renameGroup,
+  addToGroup,
+  removeFromGroup,
+};
