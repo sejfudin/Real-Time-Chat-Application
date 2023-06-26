@@ -1,28 +1,33 @@
 import React, { useEffect, useState } from 'react';
-// import { makeStyles } from '@mui/styles';
-import { Box, Paper, Typography } from '@mui/material';
+import { Box, Button, Stack, Typography } from '@mui/material';
+import { styled } from '@mui/system';
 import { useChatState } from '../../Context/ChatProvider';
-import { fetchChats } from '../../utils/helpers';
-import UserListItem from '../User/UserListItem';
+import { fetchChats } from '../../services/chatService';
 import { getSender } from '../../config/chatLogics';
+import GroupChatModal from '../Modals/GroupChatModal';
 
-// const useStyles = makeStyles((theme) => ({
-//   myChats: {
-//     width: '100%',
-//     marginBottom: theme.spacing(2),
-//     padding: theme.spacing(2),
-//   },
-// }));
+const TitleText = styled(Typography)`
+  margin-right: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  margin-left: 20px;
+  padding-top: 10px;
+  font-size: 20px;
+  font-weight: bold;
+  color: black;
+`;
 
 const MyChats = () => {
-  // const classes = useStyles();
   const [loggedUser, setLoggedUser] = useState();
-  const { user, selectedChat, setSelectedChat, chats, setChats } = useChatState();
+  const { selectedChat, setSelectedChat, chats, setChats } = useChatState();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const getChats = async () => {
     const data = await fetchChats();
     return data;
   };
+
   useEffect(() => {
     setLoggedUser(JSON.parse(localStorage.getItem('userInfo')));
     const fetchData = async () => {
@@ -31,18 +36,25 @@ const MyChats = () => {
     };
     fetchData();
   }, [setChats]);
+
   return (
-    <Box
-    // className={ classes.myChats }
-    >
+    <Box>
+      <Stack direction='row' alignItems='center' mb={2}>
+        <TitleText>My Chats</TitleText>
+        <Button variant='contained' onClick={() => setIsModalOpen(true)}>
+          New Group Chat
+        </Button>
+      </Stack>
+
       {chats?.map((chat) => (
         <Box
+          key={chat._id}
           onClick={() => setSelectedChat(chat)}
           sx={{
             width: 250,
             margin: 2,
             padding: 2,
-            backgroundColor: '#DCDCDC',
+            backgroundColor: selectedChat?._id === chat?._id ? 'primary.main' : '#DCDCDC',
             borderRadius: 4,
             '&:hover': {
               backgroundColor: 'primary.main',
@@ -54,6 +66,7 @@ const MyChats = () => {
           </Typography>
         </Box>
       ))}
+      <GroupChatModal open={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </Box>
   );
 };
