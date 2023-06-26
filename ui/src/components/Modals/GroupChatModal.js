@@ -37,7 +37,7 @@ const GroupChatModal = ({ open, onClose }) => {
   const [groupName, setGroupName] = useState('');
   const [selectedUsers, setSelectedUsers] = useState([]);
 
-  const { user, chats, setChats } = useChatState();
+  const { chats, setChats } = useChatState();
 
   const handleSearch = async (query) => {
     setSearch(query);

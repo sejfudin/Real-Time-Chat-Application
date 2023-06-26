@@ -1,23 +1,14 @@
 import React from 'react';
-// import { makeStyles } from '@mui/styles';
 import { Paper } from '@mui/material';
+import { useChatState } from '../../Context/ChatProvider';
+import SingleChat from './SingleChat';
 
-// const useStyles = makeStyles((theme) => ({
-//   chatBox: {
-//     width: '100%',
-//     marginBottom: theme.spacing(2),
-//     padding: theme.spacing(2),
-//   },
-// }));
-
-const ChatBox = () => {
-  // const classes = useStyles();
+const ChatBox = ({ fetchAgain, setFetchAgain }) => {
+  const { selectedChat } = useChatState();
 
   return (
-    <Paper
-    // className={ classes.chatBox }
-    >
-      Chat Box
+    <Paper>
+      <SingleChat fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} />
     </Paper>
   );
 };
