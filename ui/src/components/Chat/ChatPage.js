@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Grid } from '@mui/material';
 import SideDrawer from './SideDrawer';
 import MyChats from './MyChats';
@@ -9,6 +9,8 @@ import { useNavigate } from 'react-router';
 const ChatPage = () => {
   const { user } = useChatState();
   const navigate = useNavigate();
+
+  const [fetchAgain, setFetchAgain] = useState();
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('userInfo'));
@@ -23,10 +25,10 @@ const ChatPage = () => {
         {user && <SideDrawer />}
       </Grid>
       <Grid item xs={12} sm={4}>
-        {user && <MyChats />}
+        {user && <MyChats fetchAgain={fetchAgain} />}
       </Grid>
       <Grid item xs={12} sm={8}>
-        {user && <ChatBox />}
+        {user && <ChatBox fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} />}
       </Grid>
     </Grid>
   );

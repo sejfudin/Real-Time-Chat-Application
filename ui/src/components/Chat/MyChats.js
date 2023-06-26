@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Stack, Typography } from '@mui/material';
+import { Box, Button, Paper, Stack, Typography } from '@mui/material';
 import { styled } from '@mui/system';
 import { useChatState } from '../../Context/ChatProvider';
 import { fetchChats } from '../../services/chatService';
@@ -18,7 +18,7 @@ const TitleText = styled(Typography)`
   color: black;
 `;
 
-const MyChats = () => {
+const MyChats = ({ fetchAgain }) => {
   const [loggedUser, setLoggedUser] = useState();
   const { selectedChat, setSelectedChat, chats, setChats } = useChatState();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -35,10 +35,10 @@ const MyChats = () => {
       setChats(data);
     };
     fetchData();
-  }, [setChats]);
+  }, [setChats, fetchAgain]);
 
   return (
-    <Box>
+    <Paper sx={{ minHeight: '85vh', padding: 2 }}>
       <Stack direction='row' alignItems='center' mb={2}>
         <TitleText>My Chats</TitleText>
         <Button variant='contained' onClick={() => setIsModalOpen(true)}>
@@ -62,12 +62,12 @@ const MyChats = () => {
             },
           }}>
           <Typography sx={{ fontWeight: 'bold' }}>
-            {!chat.isGroupChat ? getSender(loggedUser, chat.users) : chat.chatName}
+            {!chat?.isGroupChat ? getSender(loggedUser, chat.users) : chat.chatName}
           </Typography>
         </Box>
       ))}
       <GroupChatModal open={isModalOpen} onClose={() => setIsModalOpen(false)} />
-    </Box>
+    </Paper>
   );
 };
 

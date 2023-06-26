@@ -48,3 +48,48 @@ export const createGroupChat = async (groupData) => {
     console.log(error.message);
   }
 };
+
+export const updateGroupChat = async (groupData) => {
+  try {
+    const user = JSON.parse(localStorage.getItem('userInfo'));
+    const config = {
+      headers: {
+        Authorization: `Bearer ${user.token}`,
+      },
+    };
+    const { data } = await axios.put(`${BASE_URL}/chat/rename`, groupData, config);
+    return data;
+  } catch (error) {
+    console.log(error.message);
+  }
+};
+
+export const addUserToGroupChat = async (groupData) => {
+  try {
+    const user = JSON.parse(localStorage.getItem('userInfo'));
+    const config = {
+      headers: {
+        Authorization: `Bearer ${user.token}`,
+      },
+    };
+    const { data } = await axios.put(`${BASE_URL}/chat/groupadd`, groupData, config);
+    return data;
+  } catch (error) {
+    console.log(error.message);
+  }
+};
+
+export const removeUserFromGroupChat = async (groupData) => {
+  try {
+    const user = JSON.parse(localStorage.getItem('userInfo'));
+    const config = {
+      headers: {
+        Authorization: `Bearer ${user.token}`,
+      },
+    };
+    const { data } = await axios.put(`${BASE_URL}/chat/groupremove`, groupData, config);
+    return data;
+  } catch (error) {
+    console.log(error.message);
+  }
+};
