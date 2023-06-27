@@ -1,4 +1,4 @@
-const { passwordCrypt } = require('../config/password');
+const { passwordCrypt, matchPassword } = require('../config/password');
 const User = require('../models/userModel');
 
 const registerUser = async (name, email, password) => {
@@ -37,7 +37,9 @@ const loginUser = async (email, password) => {
 };
 
 const getAllUsers = async (keyword, loggedInUserId) => {
-  return await User.find(keyword).find({ _id: { $ne: loggedInUserId } });
+  return await User.find(keyword)
+    .find({ _id: { $ne: loggedInUserId } })
+    .select('name');
 };
 
 module.exports = {

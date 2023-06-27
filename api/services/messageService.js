@@ -1,8 +1,9 @@
 const Message = require('../models/messageModel');
 const Chat = require('../models/chatModel');
 const User = require('../models/userModel');
+const { updateLastMessage } = require('./chatService');
 
-const sendMessage = async (senderId, content, chatId) => {
+const createMessage = async (senderId, content, chatId) => {
   const newMessage = {
     sender: senderId,
     content,
@@ -10,26 +11,33 @@ const sendMessage = async (senderId, content, chatId) => {
   };
 
   let message = await Message.create(newMessage);
+  return message;
+};
 
-  message = await message.populate('sender', 'name').execPopulate();
-  message = await message.populate('chat').execPopulate();
+const populateMessage = async (message) => {
+  message = await message.populate('sender', 'name');
+  message = await message.populate('chat');
   message = await User.populate(message, {
     path: 'chat.users',
     select: 'name email',
   });
+  return message;
+};
 
-  await Chat.findByIdAndUpdate(chatId, {
-    latestMessage: message,
-  });
-
+const sendMessage = async (senderId, content, chatId) => {
+  let message = await createMessage(senderId, content, chatId);
+  message = await populateMessage(message);
+  await updateLastMessage(chatId, message);
   return message;
 };
 
 const getAllMessages = async (chatId) => {
-  return await Message.find({ chat: chatId }).populate('sender', 'name email').populate('chat');
+  return await Message.find({ chat: chatId }).populate('sender', 'name').populate('chat');
 };
 
 module.exports = {
+  createMessage,
+  populateMessage,
   sendMessage,
   getAllMessages,
 };
