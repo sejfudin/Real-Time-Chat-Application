@@ -25,6 +25,9 @@ const populateMessage = async (message) => {
 };
 
 const sendMessage = async (senderId, content, chatId) => {
+  if (!content || !chatId || !senderId) {
+    throw new Error('Invalid data passed into request');
+  }
   let message = await createMessage(senderId, content, chatId);
   message = await populateMessage(message);
   await updateLastMessage(chatId, message);
