@@ -24,6 +24,39 @@ app.use('/message', messageRoutes);
 
 const port = process.env.PORT;
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`Server running on port ${port}`);
+});
+
+const io = require('socket.io')(server, {
+  pingTimeot: 60000,
+  cors: {
+    origin: 'http://localhost:3000',
+  },
+});
+
+io.on('connection', (socket) => {
+  console.log('connected to socket.io');
+
+  socket.on('setup', (userData) => {
+    socket.join(userData?._id); //create room for the user
+    socket.emit('connected');
+  });
+
+  socket.on('joinChat', (room) => {
+    socket.join(room);
+    console.log('User joined room' + room);
+  });
+
+  socket.on('typing', (room) => socket.in(room).emit('typing'));
+  socket.on('stopTyping', (room) => socket.in(room).emit('stopTyping'));
+
+  socket.on('newMessage', (newMessageReceived) => {
+    var chat = newMessageReceived.chat;
+    if (!chat.users) return console.log('chat.users not defined');
+    chat.users.forEach((user) => {
+      if (user._id === newMessageReceived.sender._id) return; //User will not send messages to himself
+      socket.in(user._id).emit('messageReceived', newMessageReceived);
+    });
+  });
 });
