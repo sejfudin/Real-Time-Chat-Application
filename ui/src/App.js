@@ -6,7 +6,7 @@ const App = () => {
   return (
     <Routes>
       <Route exact path='/' element={<FormsWrapper />} />
-      <Route exact path='/chats' element={<ChatPage />} />
+      <Route path='/chats' element={<ChatPage />} />
     </Routes>
   );
 };

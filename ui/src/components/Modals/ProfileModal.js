@@ -22,8 +22,8 @@ const ProfileModal = ({ open, onClose, user }) => {
         </CloseButton>
       </ModalTitle>
       <DialogContent>
-        <Typography variant='body1'>Name: {user.name}</Typography>
-        <Typography variant='body1'>Email: {user.email}</Typography>
+        <Typography variant='body1'>Name: {user?.name}</Typography>
+        <Typography variant='body1'>Email: {user?.email}</Typography>
       </DialogContent>
     </Dialog>
   );

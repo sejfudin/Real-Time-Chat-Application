@@ -21,8 +21,6 @@ const LoginForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     await loginUser(formData, navigate);
-    // Handle form submission logic here
-    console.log(formData);
   };
 
   return (

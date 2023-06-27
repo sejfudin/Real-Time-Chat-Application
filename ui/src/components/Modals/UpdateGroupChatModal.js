@@ -40,14 +40,14 @@ const LeaveGroupButton = styled(Button)`
   text-transform: none; /* Remove uppercase */
 `;
 
-const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, open, onClose }) => {
+const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, open, onClose, fetchMessages }) => {
   const [search, setSearch] = useState('');
   const [searchResult, setSearchResult] = useState([]);
   const [groupName, setGroupName] = useState('');
 
   const { selectedChat, setSelectedChat, user } = useChatState();
   const loggedUser = JSON.parse(localStorage.getItem('userInfo'));
-  const { groupAdmin, _id: userId } = user;
+  const { _id: userId } = user;
 
   const handleSearch = async (query) => {
     setSearch(query);
@@ -71,6 +71,7 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, open, onClose }) => {
     userToRemove._id === user._id ? setSelectedChat() : setSelectedChat(data);
     setSelectedChat(data);
     setFetchAgain(!fetchAgain);
+    fetchMessages();
   };
 
   const handleAddUser = async (userToAdd) => {
