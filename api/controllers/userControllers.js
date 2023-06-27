@@ -1,50 +1,34 @@
 const generateToken = require('../config/genarateToken');
 const { passwordCrypt, matchPassword } = require('../config/password');
 const User = require('../models/userModel');
+const userService = require('../services/userService');
 
+//Register new user
 const registerUser = async (req, res) => {
   const { name, email, password } = req.body;
 
-  if (!name || !email || !password) {
-    res.status(400);
-    throw new Error('Please Enter all the fields');
-  }
+  const createdUser = await userService.registerUser(name, email, password);
 
-  const userExists = await User.findOne({ email });
-  if (userExists) {
-    res.status(400);
-    throw new Error('User already exists');
-  }
-
-  const hashedPassword = await passwordCrypt(password);
-
-  const user = new User({
-    name,
-    email,
-    password: hashedPassword,
-  });
-
-  await user.save();
-
-  if (user) {
+  if (createdUser) {
     res.status(201).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      token: generateToken(user._id),
+      _id: createdUser._id,
+      name: createdUser.name,
+      email: createdUser.email,
+      token: generateToken(createdUser._id),
     });
   } else {
     res.status(400);
-    throw new Error('Create user failed!');
+    throw new Error('User registration failed!');
   }
 };
 
+//Login user
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
-  const user = await User.findOne({ email });
+  const user = await userService.loginUser(email, password);
 
-  if (user && matchPassword(user.password, password)) {
+  if (user) {
     res.json({
       _id: user._id,
       name: user.name,
@@ -53,10 +37,11 @@ const loginUser = async (req, res) => {
     });
   } else {
     res.status(401);
-    throw new Error('Invalid Email or Password!');
+    throw new Error('Invalid email or password!');
   }
 };
 
+//Get all users
 const allUsers = async (req, res) => {
   const keyword = req.query.search
     ? {
@@ -67,7 +52,9 @@ const allUsers = async (req, res) => {
       }
     : {};
 
-  const users = await User.find(keyword).find({ _id: { $ne: req.user?._id } }); //exclude logged in user from search
+  const loggedInUserId = req.user?._id;
+
+  const users = await userService.getAllUsers(keyword, loggedInUserId);
   res.send(users);
 };
 
