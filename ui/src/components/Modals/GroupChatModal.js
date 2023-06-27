@@ -37,7 +37,7 @@ const GroupChatModal = ({ open, onClose }) => {
   const [groupName, setGroupName] = useState('');
   const [selectedUsers, setSelectedUsers] = useState([]);
 
-  const { chats, setChats } = useChatState();
+  const { user, chats, setChats } = useChatState();
 
   const handleSearch = async (query) => {
     setSearch(query);
@@ -70,6 +70,7 @@ const GroupChatModal = ({ open, onClose }) => {
     const formData = {
       name: groupName,
       users: JSON.stringify(selectedUsers.map((user) => user._id)),
+      admin: user._id,
     };
     const createdGroup = await createGroupChat(formData);
     setChats([createdGroup, ...chats]);
