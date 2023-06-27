@@ -64,7 +64,6 @@ const fetchChats = async (req, res) => {
 const createGroupChat = async (req, res) => {
   var users = JSON.parse(req.body.users);
   const { name } = req.body;
-  console.log(req.body);
 
   const groupExists = await Chat.findOne({ chatName: name });
   if (groupExists) {
@@ -118,7 +117,6 @@ const renameGroup = async (req, res) => {
 };
 
 const addToGroup = async (req, res) => {
-  console.log('okino');
   const { chatId, userId } = req.body;
   const added = await Chat.findByIdAndUpdate(
     chatId,
