@@ -12,7 +12,7 @@ const ChatPage = () => {
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('userInfo'));
-    if (!user && navigate().pathname === '/chats') {
+    if (!user) {
       navigate('/');
     }
     if (user) {

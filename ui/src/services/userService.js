@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { BASE_URL } from '../utils/constants';
-import axiosInstance from '../utils/helpers.js/axios';
 
 export const registerUser = async (userData, navigate) => {
   try {
@@ -24,7 +23,13 @@ export const loginUser = async (userData, navigate) => {
 
 export const searchUser = async (keyword) => {
   try {
-    const { data } = await axiosInstance.get(`${BASE_URL}/user?search=${keyword}`);
+    const user = JSON.parse(localStorage.getItem('userInfo'));
+    const config = {
+      headers: {
+        Authorization: `Bearer ${user.token}`,
+      },
+    };
+    const { data } = await axios.get(`${BASE_URL}/user?search=${keyword}`, config);
     return data;
   } catch (error) {
     console.log(error.message);

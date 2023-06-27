@@ -56,7 +56,7 @@ const TitleText = styled(Typography)`
   color: black;
 `;
 const SideDrawer = () => {
-  const { user, setSelectedChat, chats, setChats, notification, setNotification } = useChatState();
+  const { user, setSelectedChat, chats, setChats, notification } = useChatState();
   const [anchorEl, setAnchorEl] = useState(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
