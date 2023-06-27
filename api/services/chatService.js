@@ -45,9 +45,8 @@ const fetchChats = async (userId) => {
   });
 };
 
-const createGroupChat = async (users, groupAdmin, name) => {
-  const groupExists = await Chat.findOne({ chatName: name });
-
+const createGroupChat = async (users, name, admin) => {
+  const groupExists = await Chat.findOne({ chatName: name, groupAdmin: admin });
   if (groupExists) {
     throw new Error('Group already exists');
   }
@@ -56,13 +55,15 @@ const createGroupChat = async (users, groupAdmin, name) => {
     throw new Error('More than two users are required to form a group chat');
   }
 
-  users.push(groupAdmin); // Add logged in user to users array
+  users = JSON.parse(users);
+
+  users.push(admin); // Add logged in user to users array
 
   const groupChat = await Chat.create({
     chatName: name,
     users,
     isGroupChat: true,
-    groupAdmin,
+    groupAdmin: admin,
   });
 
   return await Chat.findOne({ _id: groupChat._id })
@@ -108,6 +109,12 @@ const removeFromGroup = async (chatId, userId) => {
     .populate('groupAdmin', '-password');
 };
 
+const updateLastMessage = async (chatId, message) => {
+  await Chat.findByIdAndUpdate(chatId, {
+    latestMessage: message,
+  });
+};
+
 module.exports = {
   accessChat,
   fetchChats,
@@ -115,4 +122,5 @@ module.exports = {
   renameGroup,
   addToGroup,
   removeFromGroup,
+  updateLastMessage,
 };

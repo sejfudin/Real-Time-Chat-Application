@@ -10,7 +10,7 @@ const accessChat = async (req, res) => {
   }
 
   try {
-    const chat = await chatService.accessChat(req.user._id, userId);
+    const chat = await chatService.accessChat(req.user?._id, userId);
     res.send(chat);
   } catch (error) {
     res.status(400);
@@ -31,10 +31,11 @@ const fetchChats = async (req, res) => {
 
 //Create group
 const createGroupChat = async (req, res) => {
-  const { users, name } = req.body;
+  const { users, name, admin } = req.body;
 
   try {
-    const groupChat = await chatService.createGroupChat(users, req.user, name);
+    const groupChat = await chatService.createGroupChat(users, name, admin);
+
     res.status(200).json(groupChat);
   } catch (error) {
     res.status(400);
@@ -60,6 +61,7 @@ const addToGroup = async (req, res) => {
   const { chatId, userId } = req.body;
 
   try {
+    console.log(chatId, userId);
     const added = await chatService.addToGroup(chatId, userId);
     res.json(added);
   } catch (error) {

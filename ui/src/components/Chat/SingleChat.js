@@ -67,6 +67,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     const updateData = {
       content: newMessage,
       chatId: selectedChat._id,
+      senderId: user._id,
     };
     if (e.key === 'Enter' && newMessage) {
       socket.emit('stopTyping', selectedChat._id);

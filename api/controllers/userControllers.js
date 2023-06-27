@@ -55,6 +55,7 @@ const allUsers = async (req, res) => {
   const loggedInUserId = req.user?._id;
 
   const users = await userService.getAllUsers(keyword, loggedInUserId);
+  console.log(users);
   res.send(users);
 };
 
