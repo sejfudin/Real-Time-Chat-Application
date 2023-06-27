@@ -5,6 +5,7 @@ const chats = require('./dummyData/data');
 const mongo = require('./config/mongo');
 const userRoutes = require('./routes/userRoutes');
 const chatRoutes = require('./routes/chatRoutes');
+const messageRoutes = require('./routes/messageRoutes');
 
 const app = express();
 dotenv.config();
@@ -19,6 +20,7 @@ app.use(
 app.use(express.json());
 app.use('/user', userRoutes);
 app.use('/chat', chatRoutes);
+app.use('/message', messageRoutes);
 
 const port = process.env.PORT;
 
