@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { TextField, Button, Container } from '@mui/material';
-import { registerUser } from '../../utils/helpers';
+import { registerUser } from '../../services/userService';
 import { useNavigate } from 'react-router-dom';
 
 const RegisterForm = () => {
@@ -20,9 +20,9 @@ const RegisterForm = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    registerUser(formData, navigate);
+    await registerUser(formData, navigate);
     // Handle form submission logic here
     console.log(formData);
   };

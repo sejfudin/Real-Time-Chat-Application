@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { TextField, Button, Container } from '@mui/material';
-import { loginUser } from '../../utils/helpers';
+import { loginUser } from '../../services/userService';
+import { useNavigate } from 'react-router';
 
 const LoginForm = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
+
+  const navigate = useNavigate();
 
   const handleInputChange = (e) => {
     setFormData({
@@ -15,11 +18,9 @@ const LoginForm = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    loginUser(formData);
-    // Handle form submission logic here
-    console.log(formData);
+    await loginUser(formData, navigate);
   };
 
   return (

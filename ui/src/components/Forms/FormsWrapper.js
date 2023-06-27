@@ -1,11 +1,21 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Grid, Paper, Typography } from '@mui/material';
 import RegisterForm from './RegisterForm';
 import LoginForm from './LoginForm';
+import { useNavigate } from 'react-router';
 
 const FormsWrapper = () => {
   const [showRegisterForm, setShowRegisterForm] = useState(false);
   const [showLoginForm, setShowLoginForm] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('userInfo'));
+
+    if (user) {
+      navigate('/chats');
+    }
+  }, [navigate]);
 
   const handleShowRegisterForm = () => {
     setShowRegisterForm(true);
