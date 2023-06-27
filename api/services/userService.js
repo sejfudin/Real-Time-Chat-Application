@@ -3,12 +3,12 @@ const User = require('../models/userModel');
 
 const registerUser = async (name, email, password) => {
   if (!name || !email || !password) {
-    return null;
+    throw new Error('All fields are required');
   }
 
   const userExists = await User.findOne({ email });
   if (userExists) {
-    return null;
+    throw new Error('User already exists');
   }
 
   const hashedPassword = await passwordCrypt(password);
@@ -18,19 +18,20 @@ const registerUser = async (name, email, password) => {
     email,
     password: hashedPassword,
   });
-
   return await user.save();
 };
 
 const loginUser = async (email, password) => {
   if (!email || !password) {
-    return null;
+    throw new Error('All fields are required');
   }
 
   const user = await User.findOne({ email });
 
-  if (user && matchPassword(user.password, password)) {
+  if (user && (await matchPassword(password, user.password))) {
     return user;
+  } else {
+    throw new Error('Invalid email or password');
   }
 
   return null;

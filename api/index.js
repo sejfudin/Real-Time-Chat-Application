@@ -6,6 +6,7 @@ const mongo = require('./config/mongo');
 const userRoutes = require('./routes/userRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const messageRoutes = require('./routes/messageRoutes');
+const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 dotenv.config();
@@ -21,6 +22,8 @@ app.use(express.json());
 app.use('/user', userRoutes);
 app.use('/chat', chatRoutes);
 app.use('/message', messageRoutes);
+
+app.use(errorHandler);
 
 const port = process.env.PORT;
 
