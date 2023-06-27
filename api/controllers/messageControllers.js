@@ -1,7 +1,9 @@
 const Message = require('../models/messageModel');
 const User = require('../models/userModel');
 const Chat = require('../models/chatModel');
+const messageService = require('../services/messageService');
 
+//Send a message
 const sendMessage = async (req, res) => {
   const { content, chatId } = req.body;
 
@@ -9,35 +11,20 @@ const sendMessage = async (req, res) => {
     console.log('Invalid data passed into request');
     return res.sendStatus(400);
   }
-  var newMessage = {
-    sender: req.user._id,
-    content,
-    chat: chatId,
-  };
 
   try {
-    var message = await Message.create(newMessage);
-    message = await message.populate('sender', 'name');
-    message = await message.populate('chat');
-    message = await User.populate(message, {
-      path: 'chat.users',
-      select: 'name email',
-    });
-
-    await Chat.findByIdAndUpdate(req.body.chatId, {
-      latestMessage: message,
-    });
+    const message = await messageService.sendMessage(req.user._id, content, chatId);
     res.json(message);
   } catch (error) {
     res.status(400);
     throw new Error(error.message);
   }
 };
+
+//Get all messages
 const allMessages = async (req, res) => {
   try {
-    const messages = await Message.find({ chat: req.params.chatId })
-      .populate('sender', 'name email')
-      .populate('chat');
+    const messages = await messageService.getAllMessages(req.params.chatId);
     res.json(messages);
   } catch (error) {
     res.status(400);
