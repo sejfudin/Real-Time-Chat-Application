@@ -1,15 +1,49 @@
-import { Box, Paper, Stack, Typography } from '@mui/material';
+import { Box, FormControl, Input, Paper, Stack, Typography } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useChatState } from '../../Context/ChatProvider';
 import UpdateGroupChatModal from '../Modals/UpdateGroupChatModal';
-import { getSender, getSenderFull } from '../../config/chatLogics';
+import { getSender, getSenderFull } from '../../utils/helpers.js/chatLogics';
 import ProfileModal from '../Modals/ProfileModal';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { getMessages, messageSend } from '../../services/messageService';
+import ScrollableChat from './ScrollableChat';
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
-  const { user, selectedChat } = useChatState();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState([]);
+
+  const { user, selectedChat } = useChatState();
+
+  const fetchMessages = async () => {
+    if (!selectedChat) {
+      return;
+    }
+
+    const data = await getMessages(selectedChat._id);
+    setMessages(data);
+  };
+  useEffect(() => {
+    fetchMessages();
+    // eslint-disable-next-line
+  }, [selectedChat]);
+
+  const sendMessage = async (e) => {
+    const updateData = {
+      content: newMessage,
+      chatId: selectedChat._id,
+    };
+    if (e.key === 'Enter' && newMessage) {
+      setNewMessage('');
+      const data = await messageSend(updateData);
+
+      setMessages([...messages, data]);
+    }
+  };
+  const typingHandler = (e) => {
+    setNewMessage(e.target.value);
+  };
 
   return (
     <>
@@ -33,6 +67,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                   <UpdateGroupChatModal
                     fetchAgain={fetchAgain}
                     setFetchAgain={setFetchAgain}
+                    fetchMessages={fetchMessages}
                     open={isUpdateModalOpen}
                     onClose={() => setIsUpdateModalOpen(false)}
                   />
@@ -44,7 +79,18 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               </>
             )}
           </Typography>
-          <Box>{/* Messages here */}</Box>
+          <Box
+            sx={{
+              minHeight: '85vh',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'flex-end',
+            }}>
+            <ScrollableChat messages={messages} />
+            <FormControl onKeyDown={sendMessage} required sx={{ marginTop: '3px' }}>
+              <Input placeholder='Enter a message...' onChange={typingHandler} value={newMessage} />
+            </FormControl>
+          </Box>
         </>
       ) : (
         <Paper

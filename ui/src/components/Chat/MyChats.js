@@ -3,7 +3,7 @@ import { Box, Button, Paper, Stack, Typography } from '@mui/material';
 import { styled } from '@mui/system';
 import { useChatState } from '../../Context/ChatProvider';
 import { fetchChats } from '../../services/chatService';
-import { getSender } from '../../config/chatLogics';
+import { getSender } from '../../utils/helpers.js/chatLogics';
 import GroupChatModal from '../Modals/GroupChatModal';
 
 const TitleText = styled(Typography)`
