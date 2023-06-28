@@ -1,13 +1,13 @@
 import axios from 'axios';
 import { BASE_URL } from '../utils/constants';
 
-export const registerUser = async (userData, navigate) => {
+export const registerUser = async (userData, navigate, toast) => {
   try {
     const { data } = await axios.post(`${BASE_URL}/user`, userData);
     localStorage.setItem('userInfo', JSON.stringify(data));
     navigate('/chats');
   } catch (error) {
-    console.log(error.message);
+    throw new Error(error.response.data.message);
   }
 };
 
@@ -17,7 +17,7 @@ export const loginUser = async (userData, navigate) => {
     localStorage.setItem('userInfo', JSON.stringify(data));
     navigate('/chats');
   } catch (error) {
-    console.log(error.message);
+    throw new Error(error.response.data.message);
   }
 };
 

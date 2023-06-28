@@ -20,6 +20,8 @@ import {
   updateGroupChat,
 } from '../../services/chatService';
 import { searchUser } from '../../services/userService';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ModalTitle = styled(DialogTitle)`
   display: flex;
@@ -59,19 +61,25 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, open, onClose, fetchM
   };
 
   const handleRemoveUser = async (userToRemove) => {
-    //just admin can remove user
-    if (selectedChat.groupAdmin?._id !== user._id && userToRemove._id !== user._id) {
-      return;
+    try {
+      //just admin can remove user
+      if (selectedChat.groupAdmin?._id !== user._id && userToRemove._id !== user._id) {
+        return;
+      }
+      const updateData = {
+        chatId: selectedChat._id,
+        userId: userToRemove._id,
+      };
+      const data = await removeUserFromGroupChat(updateData);
+      userToRemove._id === user._id ? setSelectedChat() : setSelectedChat(data);
+      setSelectedChat(data);
+      setFetchAgain(!fetchAgain);
+      fetchMessages();
+    } catch (error) {
+      toast.error(error.message, {
+        position: toast.POSITION.TOP_CENTER,
+      });
     }
-    const updateData = {
-      chatId: selectedChat._id,
-      userId: userToRemove._id,
-    };
-    const data = await removeUserFromGroupChat(updateData);
-    userToRemove._id === user._id ? setSelectedChat() : setSelectedChat(data);
-    setSelectedChat(data);
-    setFetchAgain(!fetchAgain);
-    fetchMessages();
   };
 
   const handleAddUser = async (userToAdd) => {
@@ -182,6 +190,7 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, open, onClose, fetchM
           Leave Group
         </LeaveGroupButton>
       </Box>
+      <ToastContainer autoClose={3000} />
     </Dialog>
   );
 };

@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { TextField, Button, Container } from '@mui/material';
 import { loginUser } from '../../services/userService';
 import { useNavigate } from 'react-router';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const LoginForm = () => {
   const [formData, setFormData] = useState({
@@ -20,7 +22,13 @@ const LoginForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await loginUser(formData, navigate);
+    try {
+      await loginUser(formData, navigate);
+    } catch (error) {
+      toast.error(error.message, {
+        position: toast.POSITION.TOP_CENTER,
+      });
+    }
   };
 
   return (
@@ -36,7 +44,6 @@ const LoginForm = () => {
           type='email'
           value={formData.email}
           onChange={handleInputChange}
-          required
           fullWidth
           sx={{ mb: 2 }}
         />
@@ -46,7 +53,6 @@ const LoginForm = () => {
           type='password'
           value={formData.password}
           onChange={handleInputChange}
-          required
           fullWidth
           sx={{ mb: 2 }}
         />
@@ -54,6 +60,7 @@ const LoginForm = () => {
           Login
         </Button>
       </form>
+      <ToastContainer autoClose={3000} />
     </Container>
   );
 };
