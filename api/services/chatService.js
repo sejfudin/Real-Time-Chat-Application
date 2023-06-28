@@ -46,16 +46,19 @@ const fetchChats = async (userId) => {
 };
 
 const createGroupChat = async (users, name, admin) => {
+  if (!name) {
+    throw new Error('Group name is required');
+  }
+
   const groupExists = await Chat.findOne({ chatName: name, groupAdmin: admin });
   if (groupExists) {
     throw new Error('Group already exists');
   }
+  users = JSON.parse(users);
 
   if (users.length < 2) {
     throw new Error('More than two users are required to form a group chat');
   }
-
-  users = JSON.parse(users);
 
   users.push(admin); // Add logged in user to users array
 

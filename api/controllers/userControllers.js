@@ -4,9 +4,9 @@ const userService = require('../services/userService');
 
 //Register new user
 const registerUser = async (req, res, next) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, confirmPassword } = req.body;
   try {
-    const createdUser = await userService.registerUser(name, email, password);
+    const createdUser = await userService.registerUser(name, email, password, confirmPassword);
 
     if (createdUser) {
       res.status(201).json({
@@ -42,19 +42,14 @@ const loginUser = async (req, res, next) => {
 
 //Get all users
 const allUsers = async (req, res) => {
-  const keyword = req.query.search
-    ? {
-        $or: [
-          { name: { $regex: '^' + req.query.search, $options: 'i' } },
-          { email: { $regex: '^' + req.query.search, $options: 'i' } },
-        ],
-      }
-    : {};
-
-  const loggedInUserId = req.user?._id;
-
-  const users = await userService.getAllUsers(keyword, loggedInUserId);
-  res.send(users);
+  try {
+    const loggedInUserId = req.user?._id;
+    const keyword = req.query.search;
+    const users = await userService.getAllUsers(keyword, loggedInUserId);
+    res.send(users);
+  } catch (error) {
+    res.status(500).send({ message: error.message });
+  }
 };
 
 module.exports = { registerUser, loginUser, allUsers };
