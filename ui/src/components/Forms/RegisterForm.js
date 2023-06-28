@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { TextField, Button, Container } from '@mui/material';
 import { registerUser } from '../../services/userService';
 import { useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const RegisterForm = () => {
   const [formData, setFormData] = useState({
@@ -22,9 +24,13 @@ const RegisterForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await registerUser(formData, navigate);
-    // Handle form submission logic here
-    console.log(formData);
+    try {
+      await registerUser(formData, navigate);
+    } catch (error) {
+      toast.error(error.message, {
+        position: toast.POSITION.TOP_CENTER,
+      });
+    }
   };
 
   return (
@@ -39,7 +45,6 @@ const RegisterForm = () => {
           name='name'
           value={formData.name}
           onChange={handleInputChange}
-          required
           fullWidth
           sx={{ mb: 2 }}
         />
@@ -49,7 +54,6 @@ const RegisterForm = () => {
           type='email'
           value={formData.email}
           onChange={handleInputChange}
-          required
           fullWidth
           sx={{ mb: 2 }}
         />
@@ -59,7 +63,6 @@ const RegisterForm = () => {
           type='password'
           value={formData.password}
           onChange={handleInputChange}
-          required
           fullWidth
           sx={{ mb: 2 }}
         />
@@ -69,7 +72,6 @@ const RegisterForm = () => {
           type='password'
           value={formData.confirmPassword}
           onChange={handleInputChange}
-          required
           fullWidth
           sx={{ mb: 2 }}
         />
@@ -77,6 +79,7 @@ const RegisterForm = () => {
           Register
         </Button>
       </form>
+      <ToastContainer autoClose={3000} />
     </Container>
   );
 };

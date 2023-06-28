@@ -16,6 +16,8 @@ import { useChatState } from '../../Context/ChatProvider';
 import { searchUser } from '../../services/userService';
 import UserListItem from '../User/UserListItem';
 import { createGroupChat } from '../../services/chatService';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ModalTitle = styled(DialogTitle)`
   display: flex;
@@ -67,14 +69,23 @@ const GroupChatModal = ({ open, onClose }) => {
   };
 
   const handleCreateChat = async () => {
-    const formData = {
-      name: groupName,
-      users: JSON.stringify(selectedUsers.map((user) => user._id)),
-      admin: user._id,
-    };
-    const createdGroup = await createGroupChat(formData);
-    setChats([createdGroup, ...chats]);
-    handleCloseAfterSubmit();
+    try {
+      const formData = {
+        name: groupName,
+        users: JSON.stringify(selectedUsers.map((user) => user._id)),
+        admin: user._id,
+      };
+      const createdGroup = await createGroupChat(formData);
+      console.log(createdGroup);
+      if (createdGroup) {
+        setChats([createdGroup, ...chats]);
+        handleCloseAfterSubmit();
+      }
+    } catch (error) {
+      toast.error(error.message, {
+        position: toast.POSITION.TOP_CENTER,
+      });
+    }
   };
 
   return (
@@ -127,6 +138,7 @@ const GroupChatModal = ({ open, onClose }) => {
           Create Chat
         </CreateChatButton>
       </Box>
+      <ToastContainer autoClose={3000} />
     </Dialog>
   );
 };

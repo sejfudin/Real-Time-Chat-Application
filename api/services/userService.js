@@ -1,11 +1,14 @@
 const { passwordCrypt, matchPassword } = require('../config/password');
 const User = require('../models/userModel');
 
-const registerUser = async (name, email, password) => {
-  if (!name || !email || !password) {
+const registerUser = async (name, email, password, confirmPassword) => {
+  if (!name || !email || !password || !confirmPassword) {
     throw new Error('All fields are required');
   }
 
+  if (password !== confirmPassword) {
+    throw new Error('Password does not match');
+  }
   const userExists = await User.findOne({ email });
   if (userExists) {
     throw new Error('User already exists');
@@ -38,7 +41,14 @@ const loginUser = async (email, password) => {
 };
 
 const getAllUsers = async (keyword, loggedInUserId) => {
-  return await User.find(keyword)
+  const regex = new RegExp(`^${keyword}`, 'i');
+  const key = keyword
+    ? {
+        $or: [{ name: { $regex: regex } }, { email: { $regex: regex } }],
+      }
+    : {};
+
+  return await User.find(key)
     .find({ _id: { $ne: loggedInUserId } })
     .select('name');
 };

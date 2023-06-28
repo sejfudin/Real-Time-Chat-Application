@@ -16,7 +16,7 @@ export const messageSend = async (message) => {
     const { data } = await axios.post(`${BASE_URL}/message`, message, config);
     return data;
   } catch (error) {
-    console.log(error.message);
+    throw new Error(error.response.data.message);
   }
 };
 
@@ -26,6 +26,6 @@ export const getMessages = async (chatId) => {
     const { data } = await axios.get(`${BASE_URL}/message/${chatId}`, config);
     return data;
   } catch (error) {
-    console.log(error.message);
+    throw new Error(error.response.data.message);
   }
 };
