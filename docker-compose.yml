@@ -1,0 +1,41 @@
+version: '3.9'
+services:
+  mongodb:
+    image: mongo
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb_data:/data/db
+
+  redis:
+    image: redis
+    ports:
+      - 6379:6379
+
+  ui:
+    build:
+      context: ./ui
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    depends_on:
+      - mongodb
+      - redis
+    environment:
+      - BASE_URL = 'http://localhost:5000'
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    ports:
+      - 5000:5000
+    depends_on:
+      - mongodb
+      - redis
+    environment:
+      - REDIS_HOST=redis
+      - MONGO_URL=mongodb://mongodb:27017/mydatabase
+
+volumes:
+  mongodb_data:

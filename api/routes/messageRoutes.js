@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const protect = require('../middleware/authMiddleware');
-const { sendMessage, allMessages } = require('../controllers/messageCOntrollers');
+const { sendMessage, allMessages } = require('../controllers/messageControllers');
 const rateLimiter = require('../middleware/rateLimiter');
 const extractUserId = require('../middleware/extractSenderId');
 
