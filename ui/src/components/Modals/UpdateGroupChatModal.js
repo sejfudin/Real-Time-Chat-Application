@@ -11,6 +11,7 @@ import {
   Box,
   Button,
 } from '@mui/material';
+import CircleIcon from '@mui/icons-material/Circle';
 import CloseIcon from '@mui/icons-material/Close';
 import UserListItem from '../User/UserListItem';
 import { useChatState } from '../../Context/ChatProvider';
@@ -22,6 +23,7 @@ import {
 import { searchUser } from '../../services/userService';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import socket from '../../utils/helpers/socket';
 
 const ModalTitle = styled(DialogTitle)`
   display: flex;
@@ -107,10 +109,13 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, open, onClose, fetchM
       chatName: groupName,
     };
     const updatedGroup = await updateGroupChat(updateData);
-    setSelectedChat(updatedGroup);
-    setFetchAgain(!fetchAgain);
-    setGroupName('');
-    onClose();
+    if (updatedGroup) {
+      socket.emit('updateGroup', updatedGroup);
+      setSelectedChat(updatedGroup);
+      setFetchAgain(!fetchAgain);
+      setGroupName('');
+      onClose();
+    }
   };
   return (
     <Dialog open={open} onClose={onClose} maxWidth='sm' fullWidth>
@@ -126,7 +131,16 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, open, onClose, fetchM
             return (
               <Chip
                 key={u._id}
-                label={`${u.name} X`}
+                label={
+                  <>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <CircleIcon
+                        style={{ color: user.isOnline ? 'green' : 'red', transform: 'scale(0.7)' }}
+                      />
+                      <span style={{ marginLeft: '8px' }}>{u.name} X</span>
+                    </div>
+                  </>
+                }
                 variant='outlined'
                 sx={{ backgroundColor: 'primary.main', cursor: 'pointer' }}
                 onClick={() => handleRemoveUser(u)}

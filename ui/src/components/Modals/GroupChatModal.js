@@ -18,6 +18,7 @@ import UserListItem from '../User/UserListItem';
 import { createGroupChat } from '../../services/chatService';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import socket from '../../utils/helpers/socket';
 
 const ModalTitle = styled(DialogTitle)`
   display: flex;
@@ -76,8 +77,8 @@ const GroupChatModal = ({ open, onClose }) => {
         admin: user._id,
       };
       const createdGroup = await createGroupChat(formData);
-      console.log(createdGroup);
       if (createdGroup) {
+        socket.emit('newGroup', createdGroup);
         setChats([createdGroup, ...chats]);
         handleCloseAfterSubmit();
       }

@@ -34,7 +34,6 @@ export const fetchChats = async () => {
 
 export const createGroupChat = async (groupData) => {
   try {
-    console.log(groupData);
     const config = createAuthHeader();
     const { data } = await axios.post(`${BASE_URL}/chat/group`, groupData, config);
     return data;

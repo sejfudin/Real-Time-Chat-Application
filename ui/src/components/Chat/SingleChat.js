@@ -2,15 +2,14 @@ import { Box, FormControl, Input, Paper, Stack, Typography } from '@mui/material
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useChatState } from '../../Context/ChatProvider';
 import UpdateGroupChatModal from '../Modals/UpdateGroupChatModal';
-import { getSender, getSenderFull } from '../../utils/helpers.js/chatLogics';
+import { getSender, getSenderFull } from '../../utils/helpers/chatLogics';
 import ProfileModal from '../Modals/ProfileModal';
 import { useEffect, useState } from 'react';
 import { getMessages, messageSend } from '../../services/messageService';
 import ScrollableChat from './ScrollableChat';
-import io from 'socket.io-client';
-import { BASE_URL } from '../../utils/constants';
-
-var socket, selectedChatCompare;
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import socket from '../../utils/helpers/socket';
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -20,6 +19,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [socketConnected, setSocketConnected] = useState(false);
   const [typing, setTyping] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [typingUser, setTypingUser] = useState(false);
 
   const { user, selectedChat, notification, setNotification } = useChatState();
 
@@ -35,23 +35,34 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   };
 
   useEffect(() => {
-    socket = io(BASE_URL);
     socket.emit('setup', user);
     socket.on('connected', () => setSocketConnected(true));
-    socket.on('typing', () => setIsTyping(true));
+    socket.on('typing', () => {
+      const typingUser = user;
+      const { name } = typingUser;
+      setIsTyping(true);
+      setTypingUser(name);
+    });
+
     socket.on('stopTyping', () => setIsTyping(false));
+
+    return () => {
+      socket.off('connected');
+      socket.off('typing');
+      socket.off('stopTyping');
+    };
   }, [user]);
 
   useEffect(() => {
     fetchMessages();
 
-    selectedChatCompare = selectedChat;
+    // selectedChatCompare = selectedChat;
     // eslint-disable-next-line
   }, [selectedChat]);
 
   useEffect(() => {
     socket.on('messageReceived', (newMessageReceived) => {
-      if (!selectedChatCompare || selectedChatCompare._id !== newMessageReceived.chat._id) {
+      if (!selectedChat || selectedChat._id !== newMessageReceived.chat._id) {
         //give notification
         if (!notification.includes(newMessageReceived)) {
           setNotification([newMessageReceived, ...notification]);
@@ -61,6 +72,9 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         setMessages([...messages, newMessageReceived]);
       }
     });
+    return () => {
+      socket.off('messageReceived');
+    };
   });
 
   const sendMessage = async (e) => {
@@ -72,12 +86,18 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     if (e.key === 'Enter' && newMessage) {
       socket.emit('stopTyping', selectedChat._id);
       setNewMessage('');
-      const data = await messageSend(updateData);
-
-      socket.emit('newMessage', data);
-      setMessages([...messages, data]);
+      try {
+        const data = await messageSend(updateData);
+        socket.emit('newMessage', data);
+        setMessages([...messages, data]);
+      } catch (error) {
+        toast.error(error.message, {
+          position: toast.POSITION.TOP_CENTER,
+        });
+      }
     }
   };
+
   const typingHandler = (e) => {
     setNewMessage(e.target.value);
     if (!socketConnected) return;
@@ -142,7 +162,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             }}>
             <ScrollableChat messages={messages} />
             <FormControl onKeyDown={sendMessage} required sx={{ marginTop: '3px' }}>
-              {isTyping && <div>Typing...</div>}
+              {isTyping && <div>{`${typingUser} typing...`}</div>}
               <Input placeholder='Enter a message...' onChange={typingHandler} value={newMessage} />
             </FormControl>
           </Box>
@@ -161,6 +181,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           </Typography>
         </Paper>
       )}
+      <ToastContainer autoClose={30000} />
     </>
   );
 };

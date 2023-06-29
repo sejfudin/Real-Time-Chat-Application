@@ -3,8 +3,9 @@ import { Box, Button, Paper, Stack, Typography } from '@mui/material';
 import { styled } from '@mui/system';
 import { useChatState } from '../../Context/ChatProvider';
 import { fetchChats } from '../../services/chatService';
-import { getSender } from '../../utils/helpers.js/chatLogics';
+import { getSender } from '../../utils/helpers/chatLogics';
 import GroupChatModal from '../Modals/GroupChatModal';
+import socket from '../../utils/helpers/socket';
 
 const TitleText = styled(Typography)`
   margin-right: 8px;
@@ -27,7 +28,6 @@ const MyChats = ({ fetchAgain }) => {
     const data = await fetchChats();
     return data;
   };
-
   useEffect(() => {
     setLoggedUser(JSON.parse(localStorage.getItem('userInfo')));
     const fetchData = async () => {
@@ -36,6 +36,23 @@ const MyChats = ({ fetchAgain }) => {
     };
     fetchData();
   }, [setChats, fetchAgain]);
+
+  useEffect(() => {
+    socket.on('groupCreated', (newGroup) => {
+      setChats([newGroup, ...chats]);
+    });
+    socket.on('groupUpdated', (newGroup) => {
+      setChats((prevChats) => {
+        const updatedChats = prevChats.map((chat) => {
+          if (chat._id === newGroup._id) {
+            return newGroup;
+          }
+          return chat;
+        });
+        return updatedChats;
+      });
+    });
+  }, [chats, setChats]);
 
   return (
     <Paper sx={{ minHeight: '85vh', padding: 2 }}>

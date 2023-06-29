@@ -4,6 +4,7 @@ import { loginUser } from '../../services/userService';
 import { useNavigate } from 'react-router';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useChatState } from '../../Context/ChatProvider';
 
 const LoginForm = () => {
   const [formData, setFormData] = useState({
@@ -11,6 +12,7 @@ const LoginForm = () => {
     password: '',
   });
 
+  const { onlineusers, setOnlineUsers } = useChatState();
   const navigate = useNavigate();
 
   const handleInputChange = (e) => {
@@ -24,6 +26,8 @@ const LoginForm = () => {
     e.preventDefault();
     try {
       await loginUser(formData, navigate);
+      const loggedInUser = JSON.parse(localStorage.getItem('userInfo'));
+      setOnlineUsers([...onlineusers, loggedInUser]);
     } catch (error) {
       toast.error(error.message, {
         position: toast.POSITION.TOP_CENTER,
