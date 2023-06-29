@@ -51,7 +51,6 @@ const addToGroup = async (req, res, next) => {
   const { chatId, userId } = req.body;
 
   try {
-    console.log(chatId, userId);
     const added = await chatService.addToGroup(chatId, userId);
     res.json(added);
   } catch (error) {
