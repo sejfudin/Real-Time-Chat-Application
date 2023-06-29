@@ -3,6 +3,7 @@ import { BASE_URL } from '../utils/constants';
 
 export const registerUser = async (userData, navigate, toast) => {
   try {
+    console.log(BASE_URL);
     const { data } = await axios.post(`${BASE_URL}/user`, userData);
     localStorage.setItem('userInfo', JSON.stringify(data));
     navigate('/chats');

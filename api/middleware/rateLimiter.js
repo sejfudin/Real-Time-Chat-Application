@@ -1,6 +1,6 @@
 const Redis = require('ioredis');
 
-const redisClient = new Redis();
+const redisClient = require('../redis');
 
 const rateLimiter = (req, res, next) => {
   const userId = req.userId;
