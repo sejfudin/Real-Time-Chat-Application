@@ -1,5 +1,6 @@
 const generateToken = require('../config/genarateToken');
 const User = require('../models/userModel');
+const redisClient = require('../redis');
 const userService = require('../services/userService');
 
 //Register new user
@@ -31,7 +32,6 @@ const loginUser = async (req, res, next) => {
       res.json({
         _id: user._id,
         name: user.name,
-        email: user.email,
         token: generateToken(user._id),
       });
     }
@@ -41,15 +41,35 @@ const loginUser = async (req, res, next) => {
 };
 
 //Get all users
-const allUsers = async (req, res) => {
+const allUsers = async (req, res, next) => {
   try {
     const loggedInUserId = req.user?._id;
     const keyword = req.query.search;
+    const loggedUserIds = await redisClient.smembers('loggedUsers');
     const users = await userService.getAllUsers(keyword, loggedInUserId);
-    res.send(users);
+
+    //Check for searched users- is logged in or not
+    const usersWithStatus = users.map((user) => {
+      const isOnline = loggedUserIds.some((loggedUserId) => loggedUserId === user._id.toString());
+      return { ...user.toObject(), isOnline };
+    });
+
+    res.send(usersWithStatus);
   } catch (error) {
-    res.status(500).send({ message: error.message });
+    next({ message: error.message });
   }
 };
 
-module.exports = { registerUser, loginUser, allUsers };
+//Logout user
+const logoutUser = async (req, res, next) => {
+  const { userId } = req.body;
+  try {
+    await redisClient.srem('loggedUsers', 0, userId);
+
+    res.send({});
+  } catch (error) {
+    next({ message: error.message });
+  }
+};
+
+module.exports = { registerUser, loginUser, allUsers, logoutUser };

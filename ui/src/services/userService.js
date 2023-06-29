@@ -32,10 +32,15 @@ export const searchUser = async (keyword) => {
     const { data } = await axios.get(`${BASE_URL}/user?search=${keyword}`, config);
     return data;
   } catch (error) {
-    console.log(error.message);
+    throw new Error(error.response.data.message);
   }
 };
 
-export const logout = () => {
-  localStorage.removeItem('userInfo');
+export const logout = async (userId) => {
+  try {
+    await axios.post(`${BASE_URL}/user/logout`, { userId });
+    localStorage.removeItem('userInfo');
+  } catch (error) {
+    throw new Error(error.response.data.message);
+  }
 };

@@ -1,5 +1,6 @@
 const { passwordCrypt, matchPassword } = require('../config/password');
 const User = require('../models/userModel');
+const redisClient = require('../redis');
 
 const registerUser = async (name, email, password, confirmPassword) => {
   if (!name || !email || !password || !confirmPassword) {
@@ -21,6 +22,8 @@ const registerUser = async (name, email, password, confirmPassword) => {
     email,
     password: hashedPassword,
   });
+  // User login successful, store user ID in Redis set
+  await redisClient.sadd('loggedUsers', user._id.toString());
   return await user.save();
 };
 
@@ -32,6 +35,8 @@ const loginUser = async (email, password) => {
   const user = await User.findOne({ email });
 
   if (user && (await matchPassword(password, user.password))) {
+    // User login successful, store user ID in Redis set
+    await redisClient.sadd('loggedUsers', user._id.toString());
     return user;
   } else {
     throw new Error('Invalid email or password');

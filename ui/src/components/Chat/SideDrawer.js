@@ -22,6 +22,7 @@ import { logout, searchUser } from '../../services/userService';
 import { createChat } from '../../services/chatService';
 import UserListItem from '../User/UserListItem';
 import { useNavigate } from 'react-router';
+import { getSender } from '../../utils/helpers/chatLogics';
 
 const SideDrawerContainer = styled(Paper)`
   display: flex;
@@ -56,8 +57,9 @@ const TitleText = styled(Typography)`
   color: black;
 `;
 const SideDrawer = () => {
-  const { user, setSelectedChat, chats, setChats, notification } = useChatState();
+  const { user, setSelectedChat, chats, setChats, notification, setNotification } = useChatState();
   const [anchorEl, setAnchorEl] = useState(null);
+  const [anchorEl1, setAnchorEl1] = useState(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');
@@ -72,6 +74,14 @@ const SideDrawer = () => {
     setAnchorEl(null);
   };
 
+  const handleNotificationOpen = (event) => {
+    setAnchorEl1(event.currentTarget);
+  };
+
+  const handleNotificationClose = () => {
+    setAnchorEl1(null);
+  };
+
   const handleOpenModal = () => {
     setIsProfileModalOpen(true);
     handleMenuClose();
@@ -81,7 +91,7 @@ const SideDrawer = () => {
     setIsProfileModalOpen(false);
   };
 
-  const handleDrawerOpen = () => {
+  const handleDrawerOpen = async () => {
     setIsDrawerOpen(true);
   };
 
@@ -106,8 +116,9 @@ const SideDrawer = () => {
     handleDrawerClose();
   };
 
-  const logoutUser = () => {
-    logout();
+  const logoutUser = async () => {
+    const loggedUser = JSON.parse(localStorage.getItem('userInfo'));
+    await logout(loggedUser._id);
     navigate('/');
   };
 
@@ -124,11 +135,40 @@ const SideDrawer = () => {
         </SearchContainer>
         <LiveChatText variant='body1'>Live Chat Application</LiveChatText>
         <div>
-          <IconButton aria-label='notifications'>
+          <IconButton aria-label='notifications' onClick={handleNotificationOpen}>
             <Badge badgeContent={notification.length} color='secondary'>
               <NotificationsIcon />
             </Badge>
           </IconButton>
+          <Menu
+            anchorEl={anchorEl1}
+            open={Boolean(anchorEl1)}
+            onClose={handleNotificationClose}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right',
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}>
+            {!notification.length && 'No New Messages'}
+            {notification.map((n) => {
+              return (
+                <MenuItem
+                  key={n._id}
+                  onClick={() => {
+                    setSelectedChat(n.chat);
+                    setNotification(notification.filter((notif) => notif !== n));
+                    handleNotificationClose();
+                  }}>
+                  {n.chat.isGroupChat
+                    ? `New Message in ${n.chat.chatName}`
+                    : `New Message from ${getSender(user, n.chat.users)} `}
+                </MenuItem>
+              );
+            })}
+          </Menu>
           <IconButton aria-label='profile' onClick={handleMenuOpen}>
             <AccountCircleIcon />
           </IconButton>
