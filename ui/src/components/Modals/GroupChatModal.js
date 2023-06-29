@@ -16,6 +16,9 @@ import { useChatState } from '../../Context/ChatProvider';
 import { searchUser } from '../../services/userService';
 import UserListItem from '../User/UserListItem';
 import { createGroupChat } from '../../services/chatService';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import socket from '../../utils/helpers/socket';
 
 const ModalTitle = styled(DialogTitle)`
   display: flex;
@@ -37,7 +40,7 @@ const GroupChatModal = ({ open, onClose }) => {
   const [groupName, setGroupName] = useState('');
   const [selectedUsers, setSelectedUsers] = useState([]);
 
-  const { chats, setChats } = useChatState();
+  const { user, chats, setChats } = useChatState();
 
   const handleSearch = async (query) => {
     setSearch(query);
@@ -67,13 +70,23 @@ const GroupChatModal = ({ open, onClose }) => {
   };
 
   const handleCreateChat = async () => {
-    const formData = {
-      name: groupName,
-      users: JSON.stringify(selectedUsers.map((user) => user._id)),
-    };
-    const createdGroup = await createGroupChat(formData);
-    setChats([createdGroup, ...chats]);
-    handleCloseAfterSubmit();
+    try {
+      const formData = {
+        name: groupName,
+        users: JSON.stringify(selectedUsers.map((user) => user._id)),
+        admin: user._id,
+      };
+      const createdGroup = await createGroupChat(formData);
+      if (createdGroup) {
+        socket.emit('newGroup', createdGroup);
+        setChats([createdGroup, ...chats]);
+        handleCloseAfterSubmit();
+      }
+    } catch (error) {
+      toast.error(error.message, {
+        position: toast.POSITION.TOP_CENTER,
+      });
+    }
   };
 
   return (
@@ -126,6 +139,7 @@ const GroupChatModal = ({ open, onClose }) => {
           Create Chat
         </CreateChatButton>
       </Box>
+      <ToastContainer autoClose={3000} />
     </Dialog>
   );
 };

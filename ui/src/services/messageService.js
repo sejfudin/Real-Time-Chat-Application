@@ -1,20 +1,31 @@
+import axios from 'axios';
 import { BASE_URL } from '../utils/constants';
-import axiosInstance from '../utils/helpers.js/axios';
+
+const createAuthHeader = () => {
+  const user = JSON.parse(localStorage.getItem('userInfo'));
+  return {
+    headers: {
+      Authorization: `Bearer ${user.token}`,
+    },
+  };
+};
 
 export const messageSend = async (message) => {
   try {
-    const { data } = await axiosInstance.post(`${BASE_URL}/message`, message);
+    const config = createAuthHeader();
+    const { data } = await axios.post(`${BASE_URL}/message`, message, config);
     return data;
   } catch (error) {
-    console.log(error.message);
+    throw new Error(error.response.data.message);
   }
 };
 
 export const getMessages = async (chatId) => {
   try {
-    const { data } = await axiosInstance.get(`${BASE_URL}/message/${chatId}`);
+    const config = createAuthHeader();
+    const { data } = await axios.get(`${BASE_URL}/message/${chatId}`, config);
     return data;
   } catch (error) {
-    console.log(error.message);
+    throw new Error(error.response.data.message);
   }
 };

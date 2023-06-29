@@ -11,6 +11,7 @@ import {
   Box,
   Button,
 } from '@mui/material';
+import CircleIcon from '@mui/icons-material/Circle';
 import CloseIcon from '@mui/icons-material/Close';
 import UserListItem from '../User/UserListItem';
 import { useChatState } from '../../Context/ChatProvider';
@@ -20,6 +21,9 @@ import {
   updateGroupChat,
 } from '../../services/chatService';
 import { searchUser } from '../../services/userService';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import socket from '../../utils/helpers/socket';
 
 const ModalTitle = styled(DialogTitle)`
   display: flex;
@@ -59,19 +63,25 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, open, onClose, fetchM
   };
 
   const handleRemoveUser = async (userToRemove) => {
-    //just admin can remove user
-    if (selectedChat.groupAdmin?._id !== user._id && userToRemove._id !== user._id) {
-      return;
+    try {
+      //just admin can remove user
+      if (selectedChat.groupAdmin?._id !== user._id && userToRemove._id !== user._id) {
+        return;
+      }
+      const updateData = {
+        chatId: selectedChat._id,
+        userId: userToRemove._id,
+      };
+      const data = await removeUserFromGroupChat(updateData);
+      userToRemove._id === user._id ? setSelectedChat() : setSelectedChat(data);
+      setSelectedChat(data);
+      setFetchAgain(!fetchAgain);
+      fetchMessages();
+    } catch (error) {
+      toast.error(error.message, {
+        position: toast.POSITION.TOP_CENTER,
+      });
     }
-    const updateData = {
-      chatId: selectedChat._id,
-      userId: userToRemove._id,
-    };
-    const data = await removeUserFromGroupChat(updateData);
-    userToRemove._id === user._id ? setSelectedChat() : setSelectedChat(data);
-    setSelectedChat(data);
-    setFetchAgain(!fetchAgain);
-    fetchMessages();
   };
 
   const handleAddUser = async (userToAdd) => {
@@ -99,10 +109,13 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, open, onClose, fetchM
       chatName: groupName,
     };
     const updatedGroup = await updateGroupChat(updateData);
-    setSelectedChat(updatedGroup);
-    setFetchAgain(!fetchAgain);
-    setGroupName('');
-    onClose();
+    if (updatedGroup) {
+      socket.emit('updateGroup', updatedGroup);
+      setSelectedChat(updatedGroup);
+      setFetchAgain(!fetchAgain);
+      setGroupName('');
+      onClose();
+    }
   };
   return (
     <Dialog open={open} onClose={onClose} maxWidth='sm' fullWidth>
@@ -118,7 +131,16 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, open, onClose, fetchM
             return (
               <Chip
                 key={u._id}
-                label={`${u.name} X`}
+                label={
+                  <>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <CircleIcon
+                        style={{ color: user.isOnline ? 'green' : 'red', transform: 'scale(0.7)' }}
+                      />
+                      <span style={{ marginLeft: '8px' }}>{u.name} X</span>
+                    </div>
+                  </>
+                }
                 variant='outlined'
                 sx={{ backgroundColor: 'primary.main', cursor: 'pointer' }}
                 onClick={() => handleRemoveUser(u)}
@@ -182,6 +204,7 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, open, onClose, fetchM
           Leave Group
         </LeaveGroupButton>
       </Box>
+      <ToastContainer autoClose={3000} />
     </Dialog>
   );
 };
