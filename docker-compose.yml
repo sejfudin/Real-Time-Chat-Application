@@ -35,7 +35,7 @@ services:
       - redis
     environment:
       - REDIS_HOST=redis
-      - MONGO_URL=mongodb://mongodb:27017/mydatabase
+      - MONGO_URI=mongodb://mongodb:27017/mydatabase
 
 volumes:
   mongodb_data:
