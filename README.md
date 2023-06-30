@@ -21,6 +21,9 @@ The application is built using the following technologies:
   Used for user authentication
 - Jest<br>
   Used for writing and running unit tests
+- Docker
+  Used for containerized environment
+  
 
 ## How to Run the Application
 
@@ -30,20 +33,28 @@ Follow the steps below to set up and run the application:
 
 - Node.js installed on your machine
 - Git installed on your machine
+- Docker installed on your machine - optional
 
-### Installation
+### Cloning repository
 
 1. Clone the repository: git clone https://github.com/sejfudin/Real-Time-Chat-Application.git
-2. Navigate to the `api` folder and install dependencies: npm install
-3. Navigate to the `ui` folder and install dependencies: npm install
-5. Create `.env` file in api folder. You can refer to the `env.example` file for the required variables.
 
-### Running the Application
+### Running the Application in the Docker
 
-1. Start the API server:
+1. Run Deocker on your local machine  
+2. Run `docker-compose up --build`
+3. Visit in the browser `http://localhost:3000/`
+
+### Running the Application without the Docker
+
+1. Navigate to the `api` folder and install dependencies: npm install
+2. Navigate to the `ui` folder and install dependencies: npm install
+3. Create `.env` file in api folder. You can refer to the `env.example` file for the required variables.
+4. Start the API server:
    -Navigate to api folder and run `npm start`
-2. Start the frontend:
+5. Start the frontend:
    -Navigate to ui folder and run `npm start`
+6. Visit in the browser `http://localhost:3000/`
 
 
 ### Features implemented
@@ -66,6 +77,9 @@ The following areas of the application have been test covered:<br>
 - User searching<br>
 #### Execution<br>
 To execute the written tests, navigate to the api folder in your terminal and run the command `npm run jest`
+
+### Deployment
+The applicatin is deployed on render.com. To show the application just visit this [LINK](https://live-chat-ui.onrender.com/)
 
 
 
